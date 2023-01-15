@@ -28,7 +28,7 @@ router.post("/notes", (req, res) => {
             text: req.body.text,
             id: Math.random(),
         }
-        notes.push(newNote)
+        notesData.push(newNote)
 
         fs.writeFile(notesDBpath, JSON.stringify(notesData), (err) => { 
             if (err){
@@ -39,4 +39,24 @@ router.post("/notes", (req, res) => {
         })
     })
 })
+
+router.delete('/notes/:id', (req, res) => {
+    const id = req.params.id
+    if (!id) {
+        return res.status(400).json({ error: "Oops! An ID must be provided."})
+    }
+
+    fs.readFile(notesDBpath, "utf-8", (err, data) => {
+        const notesData = JSON.parse(data)
+        const UpdatedData = notesData.filter(note => id != note.id)
+        fs.writeFile(notesDBpath, JSON.stringify(UpdatedData), (err) => {
+            if(err) {
+                return res.status(500).json(err)
+            }
+            res.json(true)
+        })
+    })
+
+})
+
 module.exports = router
